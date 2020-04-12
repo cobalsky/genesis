@@ -1,0 +1,3 @@
+ - Hacer que la lista sea resizable
+ - Mejorar fullscreen
+ - Hacer que acepte varios archivos a la vez

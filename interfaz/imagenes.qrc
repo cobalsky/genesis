@@ -1,0 +1,17 @@
+<!DOCTYPE RCC>
+<RCC version="1.0">
+<qresource>
+    <file>img/back.svg</file>
+    <file>img/next.svg</file>
+    <file>img/play.svg</file>
+    <file>img/stop.svg</file>
+    <file>img/eject-1.svg</file>
+    <file>img/eject-1.svg</file>
+    <file>img/menu.svg</file>
+    <file>img/menu2.png</file>
+    <file>img/altavoz3.png</file>
+    <file>img/altavoz4.png</file>
+    <file>img/pausa.png</file>
+    <file>img/genesis.jpg</file>
+</qresource>
+</RCC>
