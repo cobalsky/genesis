@@ -122,8 +122,10 @@ class Reproductor(Genesis, QMainWindow):
 
     # Detectamos una tecla presionada
     def keyPressEvent(self, event):
-        if event.key() == Qt.Key_F11:
+        if event.key() == Qt.Key_F11 or event.key() == Qt.Key_Escape and self.video.isFullScreen():
             self.fullscreen_change()
+        elif event.key() == Qt.Key_Space:
+            self.play_video()
 
     #Pantalla completa
     def fullscreen_change(self):
