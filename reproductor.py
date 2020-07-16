@@ -13,14 +13,14 @@ from PyQt5.QtMultimedia import QMediaPlayer, QMediaContent, QMediaPlaylist
 from PyQt5.QtMultimediaWidgets import QVideoWidget
 
 # Importamos el archivo que contiene la interfaz
-from interfaz.genesis import Genesis
+from interfaz.genesis import Ui_Genesis as Genesis
 
 
 def detalle_tiempo(ms):
     h, r = divmod(ms, 36000)
     m, r = divmod(r, 60000)
     s, _ = divmod(r, 1000)
-    return ("%d:%02d:%02d" % (h,m,s)) if h else ("%d:%02d" % (m,s))
+    return ("%d:%02d:%02d" % (h, m, s)) if h else ("%d:%02d" % (m, s))
 
 
 class ListaModelo(QAbstractListModel):
@@ -38,22 +38,14 @@ class ListaModelo(QAbstractListModel):
     def rowCount(self, index):
         return self.lista_repro.mediaCount()
 
+
 class Reproductor(Genesis, QMainWindow):
-
-    """ Instalar MatroskaSplitter y LAVFilters(Codecs), para que pueda reproducir videos y audio
-
-    LAVFilters
-    https://github.com/Nevcairiel/LAVFilters/releases
-    
-    MatroskaSplitter
-    https://haali.su/mkv/  
-    """
-    
     def __init__(self, *args, **kwargs):
         super(Reproductor, self).__init__()
+        self.setupUi(self)
 
         self.transcurso = 0
-        
+
         # Centramos la ventana principal
         self.centrar()
 
@@ -89,16 +81,17 @@ class Reproductor(Genesis, QMainWindow):
 
         # Conectamos el Skider del tiempo con su metodo correspondiente
         self.tiempo.sliderMoved.connect(self.posicion_establecida)
-    
 
-# ******  Conectamos los estados del modulo QMediaPlayer con sus correspondientes metodos  *****
+
+# ******  Conectamos los estados del modulo QMediaPlayer  *****
+# ******  con sus correspondientes metodos                *****
         self.media.stateChanged.connect(self.cambios_video)
         self.media.positionChanged.connect(self.posicion_video)
         self.media.durationChanged.connect(self.duracion_video)
         self.total_duracion = 0
 
         self.cargar.clicked.connect(self.abrir_archivo)
-        #self.marco.origen.connect(self.arrastrar_soltar)
+        # self.marco.origen.connect(self.arrastrar_soltar)
 
         self.parar.pressed.connect(self.media.stop)
         self.atras.pressed.connect(self.lista_repro.previous)
@@ -122,12 +115,13 @@ class Reproductor(Genesis, QMainWindow):
 
     # Detectamos una tecla presionada
     def keyPressEvent(self, event):
-        if event.key() == Qt.Key_F11 or event.key() == Qt.Key_Escape and self.video.isFullScreen():
+        if event.key() == Qt.Key_F11 or\
+          event.key() == Qt.Key_Escape and self.video.isFullScreen():
             self.fullscreen_change()
         elif event.key() == Qt.Key_Space:
             self.play_video()
 
-    #Pantalla completa
+    # Pantalla completa
     def fullscreen_change(self):
         if self.video.isFullScreen():
             self.video.setFullScreen(False)
@@ -135,12 +129,14 @@ class Reproductor(Genesis, QMainWindow):
         else:
             self.video.setFullScreen(True)
 
-
     # Ocultar y mostrar la lista de reproduccion
     def boton_menu(self):
         if self.lista_visible:
             self.lista.setVisible(False)
-            size_policy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+            size_policy = QSizePolicy(
+                QSizePolicy.Expanding,
+                QSizePolicy.Expanding
+            )
             self.marco.setSizePolicy(size_policy)
             self.lista_visible = False
         else:
@@ -156,7 +152,7 @@ class Reproductor(Genesis, QMainWindow):
     def dropEvent(self, e):
         for url in e.mimeData().urls():
             self.lista_repro.addMedia(QMediaContent(url))
-        
+
         self.lista_repro.setPlaybackMode(QMediaPlaylist.Loop)
 
         self.media.setPlaylist(self.lista_repro)
@@ -167,26 +163,23 @@ class Reproductor(Genesis, QMainWindow):
 
         self.modelo.layoutChanged.emit()
 
-        """
-
-        # If not playing, seeking to first of newly added + play.
-        if self.media.state() != QMediaPlayer.PlayingState:
-            #i = self.lista_repro.mediaCount() - len(e.mimeData().urls())
-            #print(i)
-            #self.lista_repro.setCurrentIndex(i)            
-            self.reproducir.setEnabled(True)
-            self.reproductor.removeWidget(self.logo)
-            #self.media.setPlaylist(playlist)
-            self.media.play() """
-
     # Metodo para cargar el video en cuestion
     def abrir_archivo(self):
-        archivo, _ = QFileDialog.getOpenFileName(self, '   Abrir Archivo !!!', 'C:/Users/Duque/Videos', 'Solo Video (*.mp4 *.mov *.flv *.mkv *.ts *.mts *.avi);; Solo Audio (*.mp3 *.flac *.m4a *.wav)')
+        archivo, _ = QFileDialog.getOpenFileName(
+                self,
+                '   Abrir Archivo !!!',
+                'C:/Users/Duque/Videos',
+                'Solo Video (*.mp4 *.mov *.flv *.mkv *.ts *.mts *.avi);;\
+ Solo Audio (*.mp3 *.flac *.m4a *.wav)')
 
         if archivo != '':
             self.reproductor.removeWidget(self.logo)
             self.primera_reproduccion = False
-            self.lista_repro.addMedia(QMediaContent(QUrl.fromLocalFile(archivo)))
+            self.lista_repro.addMedia(
+                QMediaContent(
+                    QUrl.fromLocalFile(archivo)
+                )
+            )
             self.reproducir.setEnabled(True)
 
         self.modelo.layoutChanged.emit()
@@ -207,24 +200,34 @@ class Reproductor(Genesis, QMainWindow):
         if self.media.isMuted():
             self.media.setMuted(False)
             icon = QIcon()
-            icon.addPixmap(QPixmap(":/img/altavoz3.png"), QIcon.Normal, QIcon.Off)
+            icon.addPixmap(
+                QPixmap(":/img/altavoz3.png"),
+                QIcon.Normal,
+                QIcon.Off
+            )
             self.logo_volumen.setIcon(icon)
             self.logo_volumen.setToolTip(' Silenciar ')
         else:
             self.media.setMuted(True)
             icon = QIcon()
-            icon.addPixmap(QPixmap(":/img/altavoz4.png"), QIcon.Normal, QIcon.Off)
+            icon.addPixmap(
+                QPixmap(":/img/altavoz4.png"),
+                QIcon.Normal,
+                QIcon.Off
+            )
             self.logo_volumen.setIcon(icon)
             self.logo_volumen.setToolTip(' Restablecer Sonido ')
-
-
 
     @pyqtSlot(str)
     def arrastrar_soltar(self, archivo):
         if archivo != '':
             self.media.setMedia(QMediaContent(QUrl.fromLocalFile(archivo)))
             self.reproducir.setEnabled(True)
-            self.lista_repro.addMedia(QMediaContent(QUrl.fromLocalFile(archivo)))
+            self.lista_repro.addMedia(
+                QMediaContent(
+                    QUrl.fromLocalFile(archivo)
+                )
+            )
             self.modelo.layoutChanged.emit()
 
     # Metodo para reproducir el video en cuestion
@@ -237,14 +240,14 @@ class Reproductor(Genesis, QMainWindow):
         else:
             self.media.play()
 
-    # Metodo que detecta el estado de cambio del boton reproducir de play a pausa y viceversa
+    # Metodo que detecta el play y pausa
     def cambios_video(self, state):
         if self.media.state() == QMediaPlayer.PlayingState:
             icon = QIcon()
             icon.addPixmap(QPixmap(":/img/pausa.png"), QIcon.Normal, QIcon.Off)
             self.reproducir.setIcon(icon)
             self.reproducir.setToolTip(' Pausar Video o Audio ')
-            QToolTip.setFont(QFont('Cascadia Code PL', 18))   
+            QToolTip.setFont(QFont('Cascadia Code PL', 18))
         else:
             icon = QIcon()
             icon.addPixmap(QPixmap(":/img/play.svg"), QIcon.Normal, QIcon.Off)
@@ -252,27 +255,23 @@ class Reproductor(Genesis, QMainWindow):
             self.reproducir.setToolTip(' Reproducir Video o Audio ')
             QToolTip.setFont(QFont('Cascadia Code PL', 18))
 
-
     def duracion_video(self, duracion):
-        """
         # Detecta la duración del vídeo en el slider.
-        """
         self.tiempo.setMaximum(duracion)
         self.total_duracion = duracion
 
     # Metodo que detecta la posiscion del video en el slider
     def posicion_video(self, posicion):
-
         if posicion >= 0:
-            reproduccion = f'{detalle_tiempo(posicion)} || {detalle_tiempo(self.total_duracion)}'
+            reproduccion = f'{detalle_tiempo(posicion)} ||\
+{detalle_tiempo(self.total_duracion)}'
             self.datos.setText(reproduccion)
 
         self.tiempo.blockSignals(True)
         self.tiempo.setValue(posicion)
         self.tiempo.blockSignals(False)
 
-
-    # Metodo que detecta la posiscion establecida del modulo QMediaPlayer   
+    # Metodo que detecta la posiscion establecida del modulo QMediaPlayer
     def posicion_establecida(self, position):
         self.media.setPosition(position)
 
